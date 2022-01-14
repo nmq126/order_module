@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.example.ordermodule.queue.Config.DIRECT_EXCHANGE;
-import static com.example.ordermodule.queue.Config.DIRECT_ROUTING_KEY_ORDER;
+import static com.example.ordermodule.queue.Config.*;
 
 @RestController
 @RequestMapping("api/v1/order")
