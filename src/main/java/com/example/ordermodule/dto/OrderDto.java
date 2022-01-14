@@ -1,14 +1,24 @@
-package com.example.demorabitmq.dto;
+package com.example.ordermodule.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.ordermodule.entity.Order;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class OrderDto {
-    private String message;
+    private Long orderId;
+    private Long userId;
+    private double totalPrice;
+    private int checkOut;
+    private int status;
+
+    public OrderDto(Order order) {
+        this.orderId = order.getId();
+        this.userId = order.getUserId();
+        this.totalPrice = order.getTotalPrice();
+        this.checkOut = order.getCheckOut();
+    }
 }

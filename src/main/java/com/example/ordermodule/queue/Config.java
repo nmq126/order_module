@@ -2,6 +2,10 @@ package com.example.ordermodule.queue;
 
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,18 +19,33 @@ public class Config {
     public static final String QUEUE_PAY = "direct.queue.pay";
 
     public static final String DIRECT_EXCHANGE = "direct.exchange";
-    public static final String ROUTING_KEY_DIRECT = "direct.routingKey";
+    public static final String DIRECT_ROUTING_KEY_ORDER = "direct.routingKeyOrder";
+    public static final String DIRECT_ROUTING_KEY_PAY = "direct.routingKeyPay";
 
 
     @Bean
     public Declarables directBinding() {
         Queue directQueue = new Queue(QUEUE_ORDER);
+        Queue directQueuePay = new Queue(QUEUE_PAY);
         DirectExchange directExchange = new DirectExchange(DIRECT_EXCHANGE);
         return new Declarables(
                 directQueue,
                 directExchange,
-                bind(directQueue).to(directExchange).with(ROUTING_KEY_DIRECT)
+                bind(directQueue).to(directExchange).with(DIRECT_ROUTING_KEY_ORDER),
+                bind(directQueuePay).to(directExchange).with(DIRECT_ROUTING_KEY_PAY)
         );
+    }
+
+    @Bean
+    public MessageConverter converter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public AmqpTemplate template(ConnectionFactory connectionFactory) {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(converter());
+        return rabbitTemplate;
     }
 
 }
