@@ -1,6 +1,6 @@
 package com.example.ordermodule.controller;
 
-import com.example.ordermodule.entity.Cart;
+import com.example.ordermodule.entity.CartItem;
 import com.example.ordermodule.entity.Product;
 import com.example.ordermodule.repo.ProductRepo;
 import com.example.ordermodule.response.RESTResponse;
@@ -15,14 +15,25 @@ import java.util.HashMap;
 @RequestMapping("cart")
 public class CartController {
 
-    public static HashMap<Long, Cart> cartHashMap = new HashMap<>();
+    public static HashMap<Long, CartItem> cartHashMap = new HashMap<>();
 
     @Autowired
     ProductRepo productRepo;
 
     @RequestMapping(method = RequestMethod.POST, path = "add")
-    public ResponseEntity addToCart(@RequestBody Cart cartItem) {
-        Cart cart = cartHashMap.putIfAbsent(cartItem.getProductId(), cartItem);
+    public ResponseEntity addToCart(@RequestParam(name = "productId") int productId) {
+        CartItem cartItem = new CartItem();
+        Product product = productRepo.findById((long) productId).orElse(null);
+        if (product == null) {
+            return new ResponseEntity<>(new RESTResponse.SimpleError()
+                    .build(), HttpStatus.OK);
+        }
+        cartItem.setQuantity(1);
+        cartItem.setProductId(product.getId());
+        cartItem.setName(product.getName());
+        cartItem.setUnitPrice(product.getPrice());
+
+        CartItem cart = cartHashMap.putIfAbsent((long) productId, cartItem);
         if (cart != null) {
             cart.setQuantity(cart.getQuantity() + 1);
         }
@@ -52,12 +63,12 @@ public class CartController {
     ) {
         Product product = productRepo.findById((long) productId).orElse(null);
 
-        Cart cart = cartHashMap.get(Long.valueOf(productId));
-        if (cart == null || product == null || quantity < 1) {
+        CartItem cartItem = cartHashMap.get((long) productId);
+        if (cartItem == null || product == null || quantity < 1) {
             return new ResponseEntity<>(new RESTResponse.SimpleError()
                     .build(), HttpStatus.BAD_REQUEST);
         }
-        cart.setQuantity(quantity);
+        cartItem.setQuantity(quantity);
         return new ResponseEntity<>(new RESTResponse.Success()
                 .addData(cartHashMap)
                 .build(), HttpStatus.OK);

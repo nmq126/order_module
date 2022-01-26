@@ -16,9 +16,9 @@ public class ProductController {
 
     @Autowired
     ProductRepo productRepo;
-
-    @RequestMapping(method = RequestMethod.GET)
-    public List<Product> getAll(){
-        return productRepo.findAll();
-    }
+//
+//    @RequestMapping(method = RequestMethod.GET)
+//    public List<Product> getAll(){
+//        return productRepo.findAll();
+//    }
 }

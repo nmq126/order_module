@@ -3,16 +3,18 @@ package com.example.ordermodule.entity;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public class Cart {
+
+public class CartItem {
 
     private Long productId;
     private String name;
     private int quantity;
-    private double unitPrice;
+    private BigDecimal unitPrice;
 
 }
