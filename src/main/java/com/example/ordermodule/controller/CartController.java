@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("cart")
+@CrossOrigin("*")
 public class CartController {
 
     public static HashMap<Long, CartItem> cartHashMap = new HashMap<>();
@@ -42,6 +43,25 @@ public class CartController {
                 .build(), HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.POST, path = "remove")
+    public ResponseEntity removeFromCart(@RequestParam(name = "productId") int productId) {
+        Product product = productRepo.findById((long) productId).orElse(null);
+
+        if (!cartHashMap.containsKey((long) productId)){
+            return new ResponseEntity<>(new RESTResponse.SimpleError().setMessage("Khong co san pham trong gio")
+                    .build(), HttpStatus.BAD_REQUEST);
+        }
+
+        CartItem cartItem = cartHashMap.get((long) productId);
+        if (cartItem == null || product == null) {
+            return new ResponseEntity<>(new RESTResponse.SimpleError()
+                    .build(), HttpStatus.BAD_REQUEST);
+        }
+        cartHashMap.remove((long)productId);
+        return new ResponseEntity<>(new RESTResponse.Success()
+                .setMessage("Remove success")
+                .build(), HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.DELETE, path = "clear")
     public ResponseEntity clear() {
@@ -64,11 +84,15 @@ public class CartController {
         Product product = productRepo.findById((long) productId).orElse(null);
 
         CartItem cartItem = cartHashMap.get((long) productId);
-        if (cartItem == null || product == null || quantity < 1) {
+        if (cartItem == null || product == null || quantity < 0) {
             return new ResponseEntity<>(new RESTResponse.SimpleError()
                     .build(), HttpStatus.BAD_REQUEST);
         }
-        cartItem.setQuantity(quantity);
+        if (quantity == 0){
+            cartHashMap.remove((long) productId);
+        }else {
+            cartItem.setQuantity(quantity);
+        }
         return new ResponseEntity<>(new RESTResponse.Success()
                 .addData(cartHashMap)
                 .build(), HttpStatus.OK);
